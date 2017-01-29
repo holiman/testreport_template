@@ -1,0 +1,66 @@
+onData({
+
+	"meta":[
+		["execStartDate","2017-01-31 15:23:01"],
+		["execEndDate"  , "2017-01-31 17:33:21"],
+	],
+	"results":[
+				{
+					"testname": "testFoobar",
+					"filename": "blocktests.json", 
+					"client": "go-ethereum:master", 
+					"status" : "success"
+				},
+				{
+					"testname": "testGazonk",
+					"client": "go-ethereum:master", 
+					"filename": "blocktests.json", 
+					"status" : "fail",
+					"message": ["Preconditions failed", ["a != b"]],
+					"instance":"d2345ffa",
+				},
+				{
+					"testname": "testFoobar2",
+					"client": "go-ethereum:master", 
+					"filename": "blocktests2.json", 
+					"status" : "success"
+				},
+				{
+
+					"testname": "testGazonk2",
+					"client": "go-ethereum:master", 
+					"filename": "blocktests2.json", 
+					"status" : "fail",
+					"message": ["Preconditions failed", ["a != b"]],
+					"instance":"d2345ffa",
+				},
+				{
+					"testname": "testFoobar",
+					"filename": "blocktests2.json", 
+					"client": "parity:master", 
+					"status" : "success"
+				},
+				{
+					"testname": "testGazonk",
+					"client": "parity:master", 
+					"filename": "blocktests.json", 
+					"status" : "fail",
+					"message": ["Preconditions failed", ["a != b"]],
+					"instance":"d2345ffa",
+				},
+				{
+					"testname": "testFoobar2",
+					"filename": "blocktests2.json", 
+					"status" : "success",
+					"client": "parity:master", 
+				},
+				{
+					"testname": "testGazonk2",
+					"client": "parity:master", 
+					"status" : "fail",
+					"filename": "blocktests2.json", 
+					"message": ["Preconditions failed", ["a != b"]],
+					"instance":"d2345ffa",
+				}
+			]
+});
