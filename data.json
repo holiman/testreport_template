@@ -1,4 +1,4 @@
-onData({
+{
   "go-ethereum:master": {
     "blocktests/testrunner": {
       "start": "2017-01-31T10:30:29.591315516Z",
@@ -26,4 +26,3 @@ onData({
     }
   }
 }
-);

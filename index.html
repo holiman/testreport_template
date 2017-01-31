@@ -73,8 +73,38 @@ $(document).ready(function() {
 
 function onData(data){
 
+
+	var items = []
+	var meta = []
+	var testtype = "blocktests/testrunner"; 
+
+	for (client in data){
+
+
+		performed_test = data[client][testtype];
+
+		if (!performed_test) continue;
+		
+
+		meta.push([client +" start time", performed_test.start]);
+		meta.push([client +" end time", performed_test.start]);
+		
+		console.log("Meta:" + meta);
+
+		var x = performed_test.subresults.map(function(subresult){
+			return { 
+				"filename" 	: subresult.name,
+			 	"status" 	: subresult.success,
+				"client"	: client,
+				"instance"	: subresult.details.instanceid,
+				"message" 	: subresult.details.errors,
+			}			
+		});
+		items = items.concat(x)
+	}
+
    $('#example').DataTable( {
-        data: data.results,
+        data: items,
         pageLength: 100,
         columns: [
             { title: "Filename", data: "filename" },
@@ -98,7 +128,7 @@ function onData(data){
         ],
 
         fnRowCallback: function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-        	var _s = {"fail" : "danger", "success": "success"}[aData.status];
+        	var _s = {"false" : "danger", "true": "success"}[aData.status];
         	$(nRow).addClass( _s || "info")
 			return nRow;
 		},
@@ -106,7 +136,7 @@ function onData(data){
     });
 
     $("#metadata").DataTable({
-    	data : data.meta,
+    	data : meta,
     	columns: [{ title: "Key" },{ title: "Value" }],
         searching: false, ordering:  false,
     	paging: false, info: false,
