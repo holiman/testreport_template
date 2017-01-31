@@ -2,13 +2,25 @@
 <html lang="en">
 <head>
 	<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
 	<script src="jquery.dataTables.min.js"></script>
 	<script src="dataTables.bootstrap.min.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<link rel="stylesheet" href="dataTables.bootstrap.min.css">
 
 </head>
-  
+
+<style>
+.modal-lg {
+    width: 1600px;
+}
+.modal-dialog { width: 90%; }
+
+
+</style>
+
 <body>
 	<div class="container-fluid">
 		<div class="row">
@@ -23,10 +35,39 @@
 			</div>
 			<div class="col-md-3" role="complementary"></div>
 		</div>
+
 	</div>
+	<!-- Modal -->
+	<div class="modal fade modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="myModalLabel">Logs</h4>
+	      </div>
+	      <pre class="modal-body" id="modal-logs">
+
+	      </pre>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+
+
 
 </body>
 <script>
+
+	function displayLog(url){
+
+		  $("#modal-logs").load(url,function(result){
+			  	console.log(result);
+		 		$('#myModal').modal({show:true});
+			});
+	}
 
 utils = {
 
@@ -61,26 +102,21 @@ function recurseList(elem){
 
 $(document).ready(function() {
 
-/*
 	$.get( "data.json", onData)
-	.fail(function(){
-			//Ok, try to get jsonp-data instead
-			var script = document.createElement('script');
-			script.src = "data.jsonp";
-			document.head.appendChild(script);
-		}
-	);
-*/
-	//Default to jsonp, because why not
-	var script = document.createElement('script');
-	script.src = "data.jsonp";
-	document.head.appendChild(script);
+		.fail(function(){
+				console.log("Failed");
+				//Ok, try to get jsonp-data instead
+				var script = document.createElement('script');
+				script.src = "data.jsonp";
+				document.head.appendChild(script);
+			}
+		);
 
 });
 
 function onData(data){
 
-
+	data = data["simulations"]
 	var items = []
 	var meta = []
 	var testtype = "blocktests/testrunner"; 
@@ -88,7 +124,7 @@ function onData(data){
 
 	var TEST_REPO = "https://github.com/ethereum/tests/blob/develop/";
 
-	for (client in data){
+	for (var client in data){
 
 
 		performed_test = data[client][testtype];
@@ -98,7 +134,9 @@ function onData(data){
 
 		meta.push([client +" start time", performed_test.start]);
 		meta.push([client +" end time", performed_test.start]);
-		meta.push(["Simulator log file", '<a href="'+logfile_root+'['+client+']/simulator.log">'+client+'</a>']);
+		var href = logfile_root+'['+client+']/simulator.log';
+		var u = "displayLog('"+href+"')";
+		meta.push(["Simulator log file", '<a onclick="'+u+'">'+client+'</a>']);
 		
 		// ./tests/BlockchainTests/bcInvalidHeaderTest.json:ForkUncle
 		// => BlockchainTests/bcInvalidHeaderTest.json:ForkUncle
@@ -120,6 +158,7 @@ function onData(data){
 		});
 		items = items.concat(x)
 	}
+
    $('#example').DataTable( {
         data: items,
         pageLength: 100,
@@ -129,20 +168,20 @@ function onData(data){
      				if(!data) { return ""};
            			var a = document.createElement('a');
            			a.setAttribute("href",TEST_REPO+data.split(":")[0]);
-           			a.text = data;
+           			a.text = data.split(":")[1];
+           			a.setAttribute("target", "_blank");
            			return a.outerHTML;
             	}
         },
             { title: "Status", data: "status" },
             { title: "Client", data: "client" },
-            { title: "instance", data: "instance" , 
+            { title: "Log", data: "instance" , 
 	           	render: function ( data, type, row ) {
      				   	if(!data) { return ""};
+     				   	var href = logfile_root+"["+row.client+"]/client-"+data+".log"
             			var a = document.createElement('a');
-            			a.setAttribute("href", logfile_root+
-            				"["+client+"]/client-"+
-            				data+".log");
-
+            			//a.href = href;
+            			a.setAttribute("onclick","displayLog('"+href+"')" );
             			a.text = data;
             			return a.outerHTML;
     			}},
