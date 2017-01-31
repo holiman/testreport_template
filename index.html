@@ -85,6 +85,9 @@ function onData(data){
 	var meta = []
 	var testtype = "blocktests/testrunner"; 
 	var logfile_root = "simulations/blocktests:testrunner"
+
+	var TEST_REPO = "https://github.com/ethereum/tests/blob/develop/";
+
 	for (client in data){
 
 
@@ -97,10 +100,18 @@ function onData(data){
 		meta.push([client +" end time", performed_test.start]);
 		meta.push(["Simulator log file", '<a href="'+logfile_root+'['+client+']/simulator.log">'+client+'</a>']);
 		
+		// ./tests/BlockchainTests/bcInvalidHeaderTest.json:ForkUncle
+		// => BlockchainTests/bcInvalidHeaderTest.json:ForkUncle
+		// link to => https://github.com/ethereum/tests/blob/develop/BlockchainTests/bcInvalidHeaderTest.json
 
 		var x = performed_test.subresults.map(function(subresult){
+			var fname = subresult.name;
+			if(fname.startsWith("./tests/"))
+			{
+				fname = fname.substring(8);
+			}
 			return { 
-				"filename" 	: subresult.name,
+				"filename" 	: fname,
 			 	"status" 	: subresult.success,
 				"client"	: client,
 				"instance"	: subresult.details.instanceid,
@@ -109,20 +120,26 @@ function onData(data){
 		});
 		items = items.concat(x)
 	}
-
    $('#example').DataTable( {
         data: items,
         pageLength: 100,
         columns: [
-            { title: "Filename", data: "filename" },
+            { title: "Filename", data: "filename" ,
+            	render: function(data){
+     				if(!data) { return ""};
+           			var a = document.createElement('a');
+           			a.setAttribute("href",TEST_REPO+data.split(":")[0]);
+           			a.text = data;
+           			return a.outerHTML;
+            	}
+        },
             { title: "Status", data: "status" },
             { title: "Client", data: "client" },
             { title: "instance", data: "instance" , 
 	           	render: function ( data, type, row ) {
      				   	if(!data) { return ""};
             			var a = document.createElement('a');
-            			a.setAttribute("href",
-            				logfile_root+
+            			a.setAttribute("href", logfile_root+
             				"["+client+"]/client-"+
             				data+".log");
 
