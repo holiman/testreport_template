@@ -77,7 +77,7 @@ function onData(data){
 	var items = []
 	var meta = []
 	var testtype = "blocktests/testrunner"; 
-
+	var logfile_root = "simulations/blocktests:testrunner"
 	for (client in data){
 
 
@@ -88,8 +88,8 @@ function onData(data){
 
 		meta.push([client +" start time", performed_test.start]);
 		meta.push([client +" end time", performed_test.start]);
+		meta.push(["Simulator log file", '<a href="'+logfile_root+'['+client+']/simulator.log">'+client+'</a>']);
 		
-		console.log("Meta:" + meta);
 
 		var x = performed_test.subresults.map(function(subresult){
 			return { 
@@ -114,7 +114,11 @@ function onData(data){
 	           	render: function ( data, type, row ) {
      				   	if(!data) { return ""};
             			var a = document.createElement('a');
-            			a.setAttribute("href","logs/"+data);
+            			a.setAttribute("href",
+            				logfile_root+
+            				"["+client+"]/client-"+
+            				data+".log");
+
             			a.text = data;
             			return a.outerHTML;
     			}},
