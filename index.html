@@ -102,7 +102,7 @@ function recurseList(elem){
 
 $(document).ready(function() {
 
-	$.get( "data.json", onData)
+	$.getJSON( "data.json", onData)
 		.fail(function(){
 				console.log("Failed");
 				//Ok, try to get jsonp-data instead
