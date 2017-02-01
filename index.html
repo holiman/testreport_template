@@ -133,7 +133,7 @@ function onData(data){
 		
 
 		meta.push([client +" start time", performed_test.start]);
-		meta.push([client +" end time", performed_test.start]);
+		meta.push([client +" end time", performed_test.end]);
 		var href = logfile_root+'['+client+']/simulator.log';
 		var u = "displayLog('"+href+"')";
 		meta.push(["Simulator log file", '<a onclick="'+u+'">'+client+'</a>']);
