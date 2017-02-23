@@ -75,37 +75,63 @@
 
 utils = {
 
-	html_encode : function (str)
-		{
-			//Let the DOM do it for us. 
-			var d = document.createElement('textarea');
-			d.innerText = str;
-			//Yes, I'm aware of 
-			// http://stackoverflow.com/questions/1219860/html-encoding-in-javascript-jquery
-			// I just don't agree. 
-			return d.innerHTML;
-		},
+	/*
+	* HTML-encoding
+	*/
+	html_encode : function (str){
+		//Let the DOM do it for us. 
+		var d = document.createElement('textarea');
+		d.innerText = str;
+		//Yes, I'm aware of 
+		// http://stackoverflow.com/questions/1219860/html-encoding-in-javascript-jquery
+		// I just don't agree. 
+		return d.innerHTML;
+	},
+	/*
+	* HTML Attribute encoding
+	*/
+	attr_encode : function (str){	
+		x = document.createElement("x");
+		x.setAttribute("b",str);
+		var all = x.outerHTML;
+		return all.substring(6,all.length-6);
+	},
+	/*
+	* Dirty url-parsing of the url hash segment
+	*/
+	get_hash_params : function() {
+		var retval = {}
+		var query = window.location.hash.substring(1);
+		var vars = query.split('&');
+		for (var i = 0; i < vars.length; i++) {
+			var pair = vars[i].split('=');
+			retval[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1])
+		}
+		return retval;
+	},
+	/*
+	* Creates an anchor-element from 'untrusted' link 'data'
+	*/
+	get_link : function(url, text){
+		var a = document.createElement('a');
+		a.setAttribute("href",url);
+		a.text = text;
+		a.setAttribute("target", "_blank");
+		return a.outerHTML;
+	},
+	/*
+	* Creates
+	* <button type="button" class="btn btn-default">Default</button>
+	*/
+	get_button: function(onclick, text){
+		var a = document.createElement('button');
+		a.setAttribute("type","button");
+		a.setAttribute("class","btn btn-primary btn-xs")
+		a.textContent = text;
+		a.setAttribute("onclick", onclick)
+		return a.outerHTML;
+	},
 
-	attr_encode : function (str)
-		{	
-			// A bit more tricky. 
-			x = document.createElement("x");
-			x.setAttribute("b",str);
-			var all = x.outerHTML;
-			return all.substring(6,all.length-6);
-			//but not much
-		},
-	get_hash_params : function() 
-		{
-			var retval = {}
-			var query = window.location.hash.substring(1);
-			var vars = query.split('&');
-			for (var i = 0; i < vars.length; i++) {
-				var pair = vars[i].split('=');
-				retval[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1])
-			}
-			return retval;
-		},
 }
 
 function recurseList(elem){
@@ -114,12 +140,6 @@ function recurseList(elem){
 	}
 	return "<ul>" + elem.map(recurseList).join("\n")+"</ul>"
 }
-
-// Overall results is a key-value store: 
-//{
-//	"testcase":[ "testcase", True, False, False]
-//}
-// it also holds the clients in "clients"
 
 $(document).ready(function() {
 
@@ -135,6 +155,12 @@ $(document).ready(function() {
 
 });
 
+/*
+* Performs filtering on the "Execution Result" datatable
+*/
+function execfilter(str){
+	$('#example').dataTable().api().search(str).draw();
+}
 function onData(data){
 
 	overallresults = {
@@ -203,12 +229,17 @@ function onData(data){
 
 	var linkToTestRepo = function(data){
 			if(!data) { return ""};
-			var a = document.createElement('a');
-			a.setAttribute("href",TEST_REPO+data.split(":")[0]);
-			a.text = data.split(":")[1];
-			a.setAttribute("target", "_blank");
-			return a.outerHTML;
+			[file, tcase] = data.split(":")
+			return utils.get_link(TEST_REPO+file, tcase);
 	}
+	var linkToTestRepoAndFilter = function(data){
+			if(!data) { return ""};
+			[file, tcase] = data.split(":")
+			firstlink =  utils.get_link(TEST_REPO+file, tcase);
+			secondlink = utils.get_button("javascript:execfilter('"+tcase+"')", "filter")
+			return firstlink +"&nbsp;&nbsp;"+ secondlink
+	}
+
 
    $('#example').DataTable( {
         data: items,
@@ -261,7 +292,7 @@ function onData(data){
     for (c in cols){
 	  cols[c].render = _x
     }
-    cols[0].render =  linkToTestRepo;
+    cols[0].render =  linkToTestRepoAndFilter;
   
 	Object.keys(overallresults.results).map(function(key, index) {
 	   //Only bother with the ones containng failures
@@ -283,8 +314,7 @@ function onData(data){
 
     var params = utils.get_hash_params()
     if(params.execfilter){
-    	$('#example').dataTable().api()
-    		.search(params.execfilter).draw();
+    	execfilter(params.execfilter);
     }
     if(params.summaryfilter){
     	$('#summary').dataTable().api()
