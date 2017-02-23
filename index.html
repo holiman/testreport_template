@@ -236,8 +236,8 @@ function onData(data){
 	var linkToTestRepoAndFilter = function(data){
 			if(!data) { return ""};
 			[file, tcase] = data.split(":")
-			firstlink =  utils.get_link(TEST_REPO+file, tcase);
-			secondlink = utils.get_button("javascript:execfilter('"+tcase+"')", "filter")
+			firstlink = utils.get_button("javascript:execfilter('"+tcase+"')", "filter")
+			secondlink =  utils.get_link(TEST_REPO+file, tcase);
 			return firstlink +"&nbsp;&nbsp;"+ secondlink
 	}
 
