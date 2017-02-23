@@ -77,18 +77,18 @@ utils = {
 
 	html_encode : function (str)
 		{
-			//Let the DOM do it for us. 
+			//Let the DOM do it for us.
 			var d = document.createElement('textarea');
 			d.innerText = str;
-			//Yes, I'm aware of 
+			//Yes, I'm aware of
 			// http://stackoverflow.com/questions/1219860/html-encoding-in-javascript-jquery
-			// I just don't agree. 
+			// I just don't agree.
 			return d.innerHTML;
 		},
 
 	attr_encode : function (str)
-		{	
-			// A bit more tricky. 
+		{
+			// A bit more tricky.
 			x = document.createElement("x");
 			x.setAttribute("b",str);
 			var all = x.outerHTML;
@@ -104,7 +104,7 @@ function recurseList(elem){
 	return "<ul>" + elem.map(recurseList).join("\n")+"</ul>"
 }
 
-// Overall results is a key-value store: 
+// Overall results is a key-value store:
 //{
 //	"testcase":[ "testcase", True, False, False]
 //}
@@ -149,7 +149,7 @@ function onData(data){
 	data = data["simulations"]
 	var items = []
 	var meta = []
-	var testtype = "ethereum/consensus"; 
+	var testtype = "ethereum/consensus";
 	var logfile_root = "simulations/ethereum:consensus"
 
 	var TEST_REPO = "https://github.com/ethereum/tests/blob/develop/";
@@ -159,14 +159,14 @@ function onData(data){
 		performed_test = data[client][testtype];
 
 		if (!performed_test) continue;
-		
+
 
 		meta.push([client +" start time", performed_test.start]);
 		meta.push([client +" end time", performed_test.end]);
 		var href = logfile_root+'['+client+']/simulator.log';
 		var u = "displayLog('"+href+"')";
 		meta.push(["Simulator log file", '<a onclick="'+u+'">'+client+'</a>']);
-		
+
 		// ./tests/BlockchainTests/bcInvalidHeaderTest.json:ForkUncle
 		// => BlockchainTests/bcInvalidHeaderTest.json:ForkUncle
 		// link to => https://github.com/ethereum/tests/blob/develop/BlockchainTests/bcInvalidHeaderTest.json
@@ -179,13 +179,13 @@ function onData(data){
 				fname = fname.substring(8);
 			}
 			addOverallResult(fname,client,subresult.success);
-			return { 
+			return {
 				"filename" 	: fname,
 			 	"status" 	: subresult.success,
 				"client"	: client,
 				"instance"	: subresult.details.instanceid,
 				"message" 	: subresult.details.errors,
-			}			
+			}
 		});
 		items = items.concat(x)
 	}
@@ -208,7 +208,7 @@ function onData(data){
         },
             { title: "Status", data: "status" },
             { title: "Client", data: "client" },
-            { title: "Log", data: "instance" , 
+            { title: "Log", data: "instance" ,
 	           	render: function ( data, type, row ) {
      				   	if(!data) { return ""};
      				   	var href = logfile_root+"["+row.client+"]/client-"+data+".log"
@@ -218,12 +218,12 @@ function onData(data){
             			a.text = data;
             			return a.outerHTML;
     			}},
-            { title: "Message", data: "message", 
+            { title: "Message", data: "message",
             	render: function ( data, type, row ) {
      				   if(!data) { return ""};
      				   return recurseList(data);
 
-    			}, 
+    			},
         },
         ],
 
@@ -243,11 +243,15 @@ function onData(data){
     });
 
     //Process overallresults
-  
+
 	var items = [];
     var cols = overallresults.cols;
+    var _x  = function(data, type, row){ return data ? "&#x2713;": "&#x2715; <b>Fail</b>"; }
+    for (c in cols){
+	  cols[c].render = _x
+    }
     cols[0].render =  linkToTestRepo;
-    
+
 	Object.keys(overallresults.results).map(function(key, index) {
 	   //Only bother with the ones containng failures
 	   var rs = overallresults.results[key]
@@ -261,12 +265,13 @@ function onData(data){
     $("#summary").DataTable({
     	data : items,
     	columns : cols,
+
     });
 
 }
 </script>
 </html>
 
-<!-- 
-Lovingly handcrafted by Martin Holst Swende @mhswende in 2017 
+<!--
+Lovingly handcrafted by Martin Holst Swende @mhswende in 2017
 -->
