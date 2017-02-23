@@ -29,13 +29,17 @@
 				<h2>Execution info</h2>
 				<table class="table table-bordered" id="metadata">
 				</table>
+
+				<h2>Failure summary</h2>
+				<table id="summary" class="table table-striped table-bordered" width="100%">
+				</table>
+
 				<h2>Execution results</h2>
 				<table id="example" class="table table-striped table-bordered" width="100%">
 				</table>
 			</div>
 			<div class="col-md-3" role="complementary"></div>
 		</div>
-
 	</div>
 	<!-- Modal -->
 	<div class="modal fade modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -64,7 +68,7 @@
 	function displayLog(url){
 
 		  $("#modal-logs").load(url,function(result){
-			  	console.log(result);
+			  	//console.log(result);
 		 		$('#myModal').modal({show:true});
 			});
 	}
@@ -100,6 +104,12 @@ function recurseList(elem){
 	return "<ul>" + elem.map(recurseList).join("\n")+"</ul>"
 }
 
+// Overall results is a key-value store: 
+//{
+//	"testcase":[ "testcase", True, False, False]
+//}
+// it also holds the clients in "clients"
+
 $(document).ready(function() {
 
 	$.getJSON( "data.json", onData)
@@ -116,6 +126,26 @@ $(document).ready(function() {
 
 function onData(data){
 
+	overallresults = {
+		results : {},
+		clients : {"Testcase":0},
+		cols : [{ "title": "Testcase"} ]
+	}
+	function addOverallResult(testcase, client, status){
+		if (overallresults.results[testcase] == null){
+			overallresults.results[testcase] = [testcase]
+		}
+		_tcase = overallresults.results[testcase]
+		if (overallresults[client] == null)
+		{
+			overallresults[client] = overallresults.cols.length
+			overallresults.cols.push({"title" : client});
+		}
+		_clientnum = overallresults[client]
+		_tcase[_clientnum] = status
+	}
+
+
 	data = data["simulations"]
 	var items = []
 	var meta = []
@@ -125,7 +155,6 @@ function onData(data){
 	var TEST_REPO = "https://github.com/ethereum/tests/blob/develop/";
 
 	for (var client in data){
-
 
 		performed_test = data[client][testtype];
 
@@ -143,11 +172,13 @@ function onData(data){
 		// link to => https://github.com/ethereum/tests/blob/develop/BlockchainTests/bcInvalidHeaderTest.json
 
 		var x = performed_test.subresults.map(function(subresult){
+
 			var fname = subresult.name;
 			if(fname.startsWith("./tests/"))
 			{
 				fname = fname.substring(8);
 			}
+			addOverallResult(fname,client,subresult.success);
 			return { 
 				"filename" 	: fname,
 			 	"status" 	: subresult.success,
@@ -159,19 +190,21 @@ function onData(data){
 		items = items.concat(x)
 	}
 
+	var linkToTestRepo = function(data){
+			if(!data) { return ""};
+			var a = document.createElement('a');
+			a.setAttribute("href",TEST_REPO+data.split(":")[0]);
+			a.text = data.split(":")[1];
+			a.setAttribute("target", "_blank");
+			return a.outerHTML;
+	}
+
    $('#example').DataTable( {
         data: items,
         pageLength: 100,
         columns: [
             { title: "Filename", data: "filename" ,
-            	render: function(data){
-     				if(!data) { return ""};
-           			var a = document.createElement('a');
-           			a.setAttribute("href",TEST_REPO+data.split(":")[0]);
-           			a.text = data.split(":")[1];
-           			a.setAttribute("target", "_blank");
-           			return a.outerHTML;
-            	}
+            	render: linkToTestRepo,
         },
             { title: "Status", data: "status" },
             { title: "Client", data: "client" },
@@ -207,6 +240,27 @@ function onData(data){
     	columns: [{ title: "Key" },{ title: "Value" }],
         searching: false, ordering:  false,
     	paging: false, info: false,
+    });
+
+    //Process overallresults
+  
+	var items = [];
+    var cols = overallresults.cols;
+    cols[0].render =  linkToTestRepo;
+    
+	Object.keys(overallresults.results).map(function(key, index) {
+	   //Only bother with the ones containng failures
+	   var rs = overallresults.results[key]
+	   for (var i =1 ; i < rs.length ; i++){
+	   	if (!rs[i]){
+		   items.push(overallresults.results[key]);
+		   break;
+	   	}
+	   }
+	});
+    $("#summary").DataTable({
+    	data : items,
+    	columns : cols,
     });
 
 }
