@@ -1,56 +1,17 @@
 
 {
   "validations": {
-    "go-ethereum:master": {},
+    "parity:master": {},
     "parity:master": {}
   },
   "simulations": {
-    "go-ethereum:master": {
+    "parity:master": {
       "ethereum/consensus": {
         "start": "2017-01-31T15:57:17.737821412Z",
         "end": "2017-01-31T16:13:23.099096903Z",
         "success": false,
         "subresults": [
-          {
-            "name": "./tests/BlockchainTests/bcTotalDifficultyTest.json:newChainFrom5Block",
-            "success": true,
-            "details": {
-              "instanceid": "709fc9f1",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcWalletTest.json:wallet2outOf3txsRevoke",
-            "success": true,
-            "details": {
-              "instanceid": "cd1bb4ff",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcUncleTest.json:twoUncle",
-            "success": true,
-            "details": {
-              "instanceid": "f5b1588c",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcInvalidRLPTest.json:TRANSCT__RandomByteAtRLP_0",
-            "success": true,
-            "details": {
-              "instanceid": "ca46b859",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcBlockGasLimitTest.json:BlockGasLimit2p63m1",
-            "success": true,
-            "details": {
-              "instanceid": "6e03d721",
-              "errors": []
-            }
-          },
+          
           {
             "name": "./tests/BlockchainTests/bcGasPricerTest.json:highGasUsage",
             "success": false,
@@ -70,7 +31,7 @@
           },
           {
             "name": "./tests/BlockchainTests/bcForkUncle.json:ForkUncle",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "0b2a5cf4",
               "errors": []
@@ -78,7 +39,7 @@
           },
           {
             "name": "./tests/BlockchainTests/bcForkBlockTest.json:BlockExtraData25",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "8b005e2f",
               "errors": []
@@ -86,7 +47,7 @@
           },
           {
             "name": "./tests/BlockchainTests/bcRPC_API_Test.json:RPC_API_Test",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "149aa738",
               "errors": []
@@ -94,7 +55,7 @@
           },
           {
             "name": "./tests/BlockchainTests/bcValidBlockTest.json:diff1024",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "5508f9eb",
               "errors": []
@@ -102,7 +63,7 @@
           },
           {
             "name": "./tests/BlockchainTests/bcUncleHeaderValiditiy.json:gasLimitTooLow",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "55a3dd63",
               "errors": []
@@ -127,7 +88,7 @@
           },
           {
             "name": "./tests/BlockchainTests/bcForkStressTest.json:ForkStressTest",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "8e99c3a2",
               "errors": []
@@ -152,7 +113,7 @@
           },
           {
             "name": "./tests/BlockchainTests/bcMultiChainTest.json:ChainAtoChainB_difficultyB",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "1bb21fcb",
               "errors": []
@@ -160,7 +121,7 @@
           },
           {
             "name": "./tests/BlockchainTests/EIP150/bcTotalDifficultyTest.json:newChainFrom5Block",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "3e9e9b95",
               "errors": []
@@ -168,7 +129,7 @@
           },
           {
             "name": "./tests/BlockchainTests/EIP150/bcWalletTest.json:wallet2outOf3txsRevoke",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "d9ea06b3",
               "errors": []
@@ -176,7 +137,7 @@
           },
           {
             "name": "./tests/BlockchainTests/EIP150/bcUncleTest.json:twoUncle",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "cc553686",
               "errors": []
@@ -184,7 +145,7 @@
           },
           {
             "name": "./tests/BlockchainTests/EIP150/bcInvalidRLPTest.json:TRANSCT__RandomByteAtRLP_0",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "b8e8b8fd",
               "errors": []
@@ -243,7 +204,7 @@
           },
           {
             "name": "./tests/BlockchainTests/EIP150/bcRPC_API_Test.json:RPC_API_Test",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "68edb27c",
               "errors": []
@@ -251,7 +212,7 @@
           },
           {
             "name": "./tests/BlockchainTests/EIP150/bcValidBlockTest.json:diff1024",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "290660dd",
               "errors": []
@@ -259,7 +220,7 @@
           },
           {
             "name": "./tests/BlockchainTests/EIP150/bcUncleHeaderValiditiy.json:gasLimitTooLow",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "e452aef7",
               "errors": []
@@ -284,7 +245,7 @@
           },
           {
             "name": "./tests/BlockchainTests/EIP150/bcForkStressTest.json:ForkStressTest",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "41f5dcaa",
               "errors": []
@@ -309,253 +270,9 @@
           },
           {
             "name": "./tests/BlockchainTests/EIP150/bcMultiChainTest.json:ChainAtoChainB_difficultyB",
-            "success": true,
+            "success": false,
             "details": {
               "instanceid": "4e52b67e",
-              "errors": []
-            }
-          }
-        ]
-      }
-    },
-    "parity:master": {
-      "blocktests/testrunner": {
-        "start": "2017-01-31T16:13:23.099706035Z",
-        "end": "2017-01-31T16:34:13.713133077Z",
-        "success": false,
-        "subresults": [
-          {
-            "name": "./tests/BlockchainTests/bcTotalDifficultyTest.json:newChainFrom5Block",
-            "success": true,
-            "details": {
-              "instanceid": "832c277f",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcWalletTest.json:wallet2outOf3txsRevoke",
-            "success": true,
-            "details": {
-              "instanceid": "7958fd41",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcUncleTest.json:twoUncle",
-            "success": true,
-            "details": {
-              "instanceid": "c5ecdcbd",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcInvalidRLPTest.json:TRANSCT__RandomByteAtRLP_0",
-            "success": true,
-            "details": {
-              "instanceid": "3134e093",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcBlockGasLimitTest.json:BlockGasLimit2p63m1",
-            "success": true,
-            "details": {
-              "instanceid": "d4dc4bca",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcGasPricerTest.json:highGasUsage",
-            "success": true,
-            "details": {
-              "instanceid": "54737cc2",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcForkUncle.json:ForkUncle",
-            "success": true,
-            "details": {
-              "instanceid": "a4e22b2b",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcForkBlockTest.json:BlockExtraData25",
-            "success": true,
-            "details": {
-              "instanceid": "62d30578",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcRPC_API_Test.json:RPC_API_Test",
-            "success": true,
-            "details": {
-              "instanceid": "5751af61",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcValidBlockTest.json:diff1024",
-            "success": true,
-            "details": {
-              "instanceid": "355feab0",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcUncleHeaderValiditiy.json:gasLimitTooLow",
-            "success": true,
-            "details": {
-              "instanceid": "459b4b1e",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcInvalidHeaderTest.json:wrongReceiptTrie",
-            "success": true,
-            "details": {
-              "instanceid": "28ccb818",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcForkStressTest.json:ForkStressTest",
-            "success": true,
-            "details": {
-              "instanceid": "3e772712",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcStateTest.json:simpleSuicide",
-            "success": true,
-            "details": {
-              "instanceid": "d180d1b1",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/bcMultiChainTest.json:ChainAtoChainB_difficultyB",
-            "success": true,
-            "details": {
-              "instanceid": "00d1ab64",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcTotalDifficultyTest.json:newChainFrom5Block",
-            "success": true,
-            "details": {
-              "instanceid": "ceaf6f40",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcWalletTest.json:wallet2outOf3txsRevoke",
-            "success": true,
-            "details": {
-              "instanceid": "04c83aae",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcUncleTest.json:twoUncle",
-            "success": true,
-            "details": {
-              "instanceid": "3474680e",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcInvalidRLPTest.json:TRANSCT__RandomByteAtRLP_0",
-            "success": true,
-            "details": {
-              "instanceid": "498b8daa",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcSuicideIssue.json:SuicideIssue",
-            "success": false,
-            "error": "Failed to start node (Failed to POST req (500):terminated unexpectedly\n)",
-            "details": {
-              "instanceid": "N/A",
-              "errors": [
-                "Failed to start node (Failed to POST req (500):terminated unexpectedly\n)"
-              ]
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcBlockGasLimitTest.json:GasUsedHigherThanBlockGasLimitButNotWithRefundsSuicideFirst2",
-            "success": true,
-            "details": {
-              "instanceid": "5a1c2a83",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcGasPricerTest.json:highGasUsage",
-            "success": true,
-            "details": {
-              "instanceid": "6e77e1fb",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcRPC_API_Test.json:RPC_API_Test",
-            "success": true,
-            "details": {
-              "instanceid": "f5e30d99",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcValidBlockTest.json:diff1024",
-            "success": true,
-            "details": {
-              "instanceid": "92b73ac0",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcUncleHeaderValiditiy.json:gasLimitTooLow",
-            "success": true,
-            "details": {
-              "instanceid": "672100e5",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcInvalidHeaderTest.json:wrongParentHash",
-            "success": true,
-            "details": {
-              "instanceid": "946f3ba1",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcForkStressTest.json:ForkStressTest",
-            "success": true,
-            "details": {
-              "instanceid": "ad00c000",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcStateTest.json:CallingCanonicalContractFromFork_CALLCODE",
-            "success": true,
-            "details": {
-              "instanceid": "5bab1b80",
-              "errors": []
-            }
-          },
-          {
-            "name": "./tests/BlockchainTests/EIP150/bcMultiChainTest.json:ChainAtoChainB_difficultyB",
-            "success": true,
-            "details": {
-              "instanceid": "dc46cf2e",
               "errors": []
             }
           }
