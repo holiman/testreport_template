@@ -33,10 +33,6 @@
 				</table>
 
 				<h1>Test report</h1>
-				<h2>Execution info</h2>
-				<table class="table table-bordered" id="metadata">
-				</table>
-
 				<h2>Failure summary</h2>
 				<table id="summary" class="table table-striped table-bordered" width="100%">
 				</table>
@@ -168,35 +164,42 @@ function onFileListing(data, error){
 	progress("Got file list")
 	table = $("#filetable")
 	files = []
-	
+
+	//var logs = logFolder(jsonsource,client);
+
 	for (var i in data.files){
 		var f = data.files[i];
 
 		for(var clientname in f.simulations){
 			var s = f.simulations[clientname]["ethereum/consensus"];
-			files.push([s.start,f.filename, clientname,  s.subresults])
-
+			var fname = f.filename;
+			var logs = logFolder(fname,clientname)
+			files.push([s.start,
+				s.end, 
+				utils.get_js_link("displayLog('"+logs+"/output.log')", "output.log"),
+				utils.get_js_link("displayLog('"+logs+"/simulator.log')", "simulator.log"),
+				clientname,  
+				s.subresults,
+				fname])
 		}
 	}
 
     filetable = $("#filetable").DataTable({
     	data : files,
-    	columns: [{title: "Date"},{ title: "Filename" },{ title: "Client" },{title: "# Results"},
+    	columns: [{title: "Start time"},{ title: "Finish time" },{ title: "Hive log" },{ title: "Simulator log" },{ title: "Client" },{title: "Number of tests"},
     		{title: "Load?",
     		render: function(){
 				return '<button type="button" class="btn btn-sm btn-primary" >Load</button>'
     		}}
 
-    		],
-        searching: false, ordering:  false,
-    	paging: false, info: false,
+    		],    	
     });
 
 
     $('#filetable tbody').on( 'click', 'button', function () {
         var data = filetable.row( $(this).parents('tr') ).data();
-        fname =  data[1] ;
-        cname =  data[2] ;
+        fname =  data[6] ;
+        cname =  data[4] ;
         loadResults(fname, cname);
         $(this).prop("disabled",true);
         $(this).text("Loaded");
@@ -239,19 +242,14 @@ function execfilter(str){
 var overallresults  = null; // Overall results
 var execresults     = null; // Execution results
 var failuresummary  = null; // Failure summary
-var metatable       = null; // Meta-info
 
 
-var meta = []
 var logfile_root = "simulations/ethereum:consensus"
 
 // Contains all the data that we load
 var alldata = {};
 
-function addMeta(key, value)
-{
-	meta.push([key, value]);
-}
+
 function logFolder(jsonsource, client)
 {
 	return jsonsource.split(".")[0];
@@ -262,7 +260,7 @@ function onData(data, jsonsource, clientname){
 	* datatables can't be reinitalized, we need to destroy them if they exist
 	**/
 	if(execresults    != null ){ execresults    .clear().destroy();}
-	if(metatable      != null ){ metatable      .clear().destroy();}
+
 	//For the failure summary, we need to also delete the html, 
 	// since clear/destroy leaves th/td fields. This causes datatables
 	// to fail, if we try to add more columns
@@ -299,24 +297,11 @@ function onData(data, jsonsource, clientname){
 		if (client != clientname) continue;
 		if (!data[client]["ethereum/consensus"]) continue;
 		
-		var logs = logFolder(jsonsource,client);
 
 		if (!alldata[jsonsource]){ 
 			alldata[jsonsource] = {} ;
 		}
 		testreport = data[client]["ethereum/consensus"]
-
-
-		addMeta("Hive log output",
-			utils.get_js_link("displayLog('"+logs+"/output.log')", jsonsource+" - output.log"));
-		addMeta(jsonsource+" - "+ client +" start time", testreport.start);
-		addMeta(jsonsource+" - "+ client +" end time", testreport.end);
-		// ./tests/BlockchainTests/bcInvalidHeaderTest.json:ForkUncle
-		// => BlockchainTests/bcInvalidHeaderTest.json:ForkUncle
-		// link to => https://github.com/ethereum/tests/blob/develop/BlockchainTests/bcInvalidHeaderTest.json
-		var href = logs+'/simulator.log';
-		var js = "javascript:displayLog('"+href+"')";
-		addMeta("Simulator log file", utils.get_js_link(js, jsonsource+" - "+client));
 
 		alldata[jsonsource][client] = testreport.subresults
 	}
@@ -394,12 +379,6 @@ function onData(data, jsonsource, clientname){
 
     });
 
-    metatable = $("#metadata").DataTable({
-    	data : meta,
-    	columns: [{ title: "Key" },{ title: "Value" }],
-        searching: false, ordering:  false,
-    	paging: false, info: false,
-    });
 
     //Process overallresults
  	
