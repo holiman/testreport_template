@@ -186,13 +186,24 @@ function onFileListing(data, error){
 
     filetable = $("#filetable").DataTable({
     	data : files,
-    	columns: [{title: "Start time"},{ title: "Finish time" },{ title: "Hive log" },{ title: "Simulator log" },{ title: "Client" },{title: "Number of tests"},
-    		{title: "Load?",
-    		render: function(){
+    	columns: [
+    		{title: "Start time",
+    			render: function(data){ return new Date(data);}
+    		},
+    		{ title: "Finish time",
+    		    render: function(data){ return new Date(data);}
+    		},
+    		{ title: "Hive log" },
+    		{ title: "Simulator log" },
+    		{ title: "Client" },
+    		{ title: "Number of tests"},
+    		{ title: "Load?",
+    			render: function(){
 				return '<button type="button" class="btn btn-sm btn-primary" >Load</button>'
     		}}
 
-    		],    	
+    		],
+    	order: [[0, 'desc']],    	
     });
 
 
@@ -323,7 +334,8 @@ function onData(data, jsonsource, clientname){
 					"client"	: client,
 					"instance"	: subresult.details.instanceid,
 					"message" 	: subresult.details.errors,
-					"source" : jsonsource,
+					"source"    : jsonsource,
+					"ms"        : subresult.details.ms
 				}			
 			});
 			items = items.concat(x)
@@ -354,7 +366,11 @@ function onData(data, jsonsource, clientname){
         columns: [
             { title: "Filename", data: "filename" ,
             	render: linkToTestRepo},
-            { title: "Status", data: "status" },
+            { title: "Status", data: "status",
+            	render: function(data){
+					if (data) return "&#x2713";
+					return "&#x2715; <b>Fail</b>";
+            	} },
             { title: "Client", data: "client" },
             { title: "Log", data: "instance" , 
 	           	render: function ( data, type, row ) {
@@ -362,6 +378,10 @@ function onData(data, jsonsource, clientname){
      				   	var href= logFolder(row.source, row.client)+"/client-"+data+".log"
      				   	return utils.get_js_link("displayLog('"+href+ "')", data);
     			}},
+    		{ title: "Exec time (s)", data: "ms", 
+    			render: function(data){
+    				return Number(data/1000).toFixed(2);
+    			} },
             { title: "Message", data: "message", 
             	render: function ( data, type, row ) {
      				   if(!data) { return ""};
