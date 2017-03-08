@@ -202,12 +202,7 @@ function onFileListing(data, error){
         $(this).text("Loaded");
     } );
 }
-function foobar(arg)
-{
-	console.log("foobar clicked "+arg)
-	console.log($(arg))
-	x = $(arg)
-}
+
 $(document).ready(function() {
 
 	// Retrieve the list of files
@@ -259,12 +254,9 @@ function addMeta(key, value)
 }
 function logFolder(jsonsource, client)
 {
-	return jsonsource.split(".")[0]+"/"+'['+client+']';
+	return jsonsource.split(".")[0];
 }
 function onData(data, jsonsource, clientname){
-
-
-
 
 	/**
 	* datatables can't be reinitalized, we need to destroy them if they exist
