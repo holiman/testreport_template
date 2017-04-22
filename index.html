@@ -195,12 +195,16 @@ function onFileListing(data, error){
 			var s = f.simulations[clientname]["ethereum/consensus"];
 			var fname = f.filename;
 			var logs = logFolder(fname,clientname)
+			var stat ="";
+			stat += (s.n_successes ? "?" : s.n_successes) + " pass, ";
+			stat += (s.n_fails ? "?" : s.n_fails) + " fail, ";
+			stat += ", tot "+s.subresults;
 			files.push([s.start,
 				s.end, 
 				utils.get_js_link("displayLog('"+logs+"/output.log')", "output.log"),
 				utils.get_js_link("displayLog('"+logs+"/simulator.log')", "simulator.log"),
 				clientname,  
-				s.subresults,
+				stat
 				fname])
 		}
 	}
