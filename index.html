@@ -69,6 +69,8 @@
 <script>
 
 	function displayLog(url){
+		$("#myModalLabel").text("");
+		$("#modal-logs").text("");
 		  $("#modal-logs").load(url,function(result){
 		  	//Also show a permalink
 		  		u = (""+window.location).split("#")[0]
