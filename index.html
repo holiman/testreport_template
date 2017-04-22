@@ -143,6 +143,27 @@ utils = {
 		return a.outerHTML;
 	},
 
+	format_timespan: function(d1,d2){
+
+		var diff = d2-d1;var _s="";
+		if (diff < 0) {
+			_s = "-";
+			diff = -diff;
+		}
+		var d = Math.floor(diff / 86400000);
+		diff %= 86400000;
+		var h = Math.floor(diff / 3600000);
+		diff %= 3600000;
+		var m = Math.floor(diff / 60000) ;
+		diff %= 60000;
+		var s = Math.floor(diff / 1000);
+
+		var a =    d ? ( d + "d") : "";
+		a += ((a||h) ? ( h + "h") : "");
+		a += ((a||m) ? ( m + "m") : "") + s + "s";
+		return _s+a;
+	},
+
 }
 
 function recurseList(elem){
@@ -174,12 +195,16 @@ function onFileListing(data, error){
 			var s = f.simulations[clientname]["ethereum/consensus"];
 			var fname = f.filename;
 			var logs = logFolder(fname,clientname)
+			var stat ="";
+			stat += (s.n_successes ? "?" : s.n_successes) + " pass, ";
+			stat += (s.n_fails ? "?" : s.n_fails) + " fail, ";
+			stat += ", tot "+s.subresults;
 			files.push([s.start,
 				s.end, 
 				utils.get_js_link("displayLog('"+logs+"/output.log')", "output.log"),
 				utils.get_js_link("displayLog('"+logs+"/simulator.log')", "simulator.log"),
 				clientname,  
-				s.subresults,
+				stat
 				fname])
 		}
 	}
@@ -191,7 +216,11 @@ function onFileListing(data, error){
     			render: function(data){ return new Date(data);}
     		},
     		{ title: "Finish time",
-    		    render: function(data){ return new Date(data);}
+    			render: function(data,t, row){ 
+    				end = new Date(data);
+    				start = new Date(row[0]);
+    				return end + " ( "+ utils.format_timespan(start, end)+" )";
+    			}
     		},
     		{ title: "Hive log" },
     		{ title: "Simulator log" },
