@@ -196,8 +196,8 @@ function onFileListing(data, error){
 			var fname = f.filename;
 			var logs = logFolder(fname,clientname)
 			var stat ="";
-			stat += (s.n_successes ? "?" : s.n_successes) + " pass, ";
-			stat += (s.n_fails ? "?" : s.n_fails) + " fail, ";
+			stat += (s.n_successes ? s.n_successes : "?") + " pass, ";
+			stat += (s.n_fails ? s.n_fails : "?") + " fail, ";
 			stat += ", tot "+s.subresults;
 			files.push([s.start,
 				s.end, 
