@@ -179,6 +179,18 @@ function progress(message){
 	console.log(message)
 
 }
+function resultStats(fails, success, total)
+{
+	f = parseInt(fails), s = parseInt(success); t = parseInt(total);
+
+	f = isNaN(f) ?  "?": f ;
+	s = isNaN(s) ?  "?": s ;
+	t = isNaN(t) ?  "?": t ;
+
+	return '<b><span class="text-danger">'+f
+		+'</span>&nbsp;:&nbsp;<span class="text-success">'+s
+		+'</span> &nbsp;/&nbsp;'+t+'</b>';
+}
 
 function onFileListing(data, error){
 
@@ -195,16 +207,12 @@ function onFileListing(data, error){
 			var s = f.simulations[clientname]["ethereum/consensus"];
 			var fname = f.filename;
 			var logs = logFolder(fname,clientname)
-			var stat ="";
-			stat += (s.n_successes ? s.n_successes : "?") + " pass, ";
-			stat += (s.n_fails ? s.n_fails : "?") + " fail, ";
-			stat += ", tot "+s.subresults;
 			files.push([s.start,
 				s.end, 
 				utils.get_js_link("displayLog('"+logs+"/output.log')", "output.log"),
 				utils.get_js_link("displayLog('"+logs+"/simulator.log')", "simulator.log"),
 				clientname,  
-				stat,
+				resultStats(s.n_fails,s.n_successes, s.subresults),
 				fname])
 		}
 	}
@@ -215,11 +223,11 @@ function onFileListing(data, error){
     		{title: "Start time",
     			render: function(data){ return new Date(data);}
     		},
-    		{ title: "Finish time",
+    		{ title: "Duration",
     			render: function(data,t, row){ 
     				end = new Date(data);
     				start = new Date(row[0]);
-    				return end + " ( "+ utils.format_timespan(start, end)+" )";
+    				return utils.format_timespan(start, end);
     			}
     		},
     		{ title: "Hive log" },
