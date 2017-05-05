@@ -66,6 +66,7 @@ def getClients(resultobj):
 	if "clients" in resultobj.keys():
 		clients = resultobj['clients']
 	else:
+		sims = resultobj['simulations']
 		for client, data in sims.items():	
 			clients[client] = {"branch": "", "commit" : "", "repo" : ""}
 	return clients
