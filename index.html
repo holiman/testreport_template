@@ -290,7 +290,7 @@ function onFileListing(data, error){
 
 	$('#filetable tbody').on( 'click', 'button', function () {
 		var data = filetable.row( $(this).parents('tr') ).data();
-		fname =  data[6] ;
+		fname =  data[7] ;
 		cname =  data[4] ;
 		loadResults(fname, cname);
 		$(this).prop("disabled",true);
