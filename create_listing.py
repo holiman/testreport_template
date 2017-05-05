@@ -50,8 +50,10 @@ def getSummary(resultsfile):
 	with open(resultsfile,"r") as infile:
 		sims = json.load(infile)
 		sim_summary = createSummaryFromJson(sims)
+
 		file_entry = { "filename" : resultsfile,
-						"simulations" : sim_summary}
+						"simulations" : sim_summary,
+						"clients" : getClients(sims)}
 
 		print "Returning %s" % file_entry
 		return file_entry
@@ -59,9 +61,20 @@ def getSummary(resultsfile):
 	print("Failed to open %s" % resultsfile)
 	return None
 
-def createSummaryFromJson( json ):
-	sims = json['simulations']
+def getClients(resultobj):
+	clients = {}
+	if "clients" in resultobj.keys():
+		clients = resultobj['clients']
+	else:
+		for client, data in sims.items():	
+			clients[client] = {"branch": "", "commit" : "", "repo" : ""}
+	return clients
+
+def createSummaryFromJson( resultobj ):
+
+	sims = resultobj['simulations']
 	for client, data in sims.items():
+
 		if "ethereum/consensus" not in data.keys():
 			return
 		subresults = data["ethereum/consensus"]["subresults"]
@@ -87,7 +100,8 @@ if __name__ == '__main__':
 	
 	#For testing: 
 	#args = parser.parse_args(["-l","listing2.json","-a","test_artefacts"])
-	#args = parser.parse_args(["-a","test_artefacts","-f","test_artefacts/20170308_151608-go-ethereum:master.json","-l","listing2.json"])
+	#args = parser.parse_args(["-a","test_artefacts","-f","test_artefacts/20170308_151608-go-ethereum:master.json","-l","listing.json"])
+	
 	args = parser.parse_args()
 	addAllToListing(args.artefact_dir,args.listingfile,args.artefact)
 	sys.exit(0)
