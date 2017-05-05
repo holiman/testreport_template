@@ -195,7 +195,7 @@ utils = {
 		// Set just repo first
 		a.setAttribute("href",data.repo);
 		// Use path for text
-		a.text = a.pathname.slice(1)+"@"+data.commit.slice(0,7)+" [⎇ "+data.branch+"]";
+		a.text = a.pathname.slice(1)+"@"+data.commit.slice(0,7)+" [\u2387 "+data.branch+"]";
 		// Set both repo and tree/commit version
 		a.setAttribute("href", data.repo+"/tree/"+data.commit);
 
