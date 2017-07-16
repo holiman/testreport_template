@@ -307,6 +307,12 @@ $(document).ready(function() {
 				progress("Failed fetching file list", true);
 			}
 		);
+	// Lastly, check any URL directives
+	var params = utils.get_hash_params()
+	if(params.displayLog){
+		displayLog(params.displayLog);
+	}
+
 });
 function loadResults(filename, clientname){
 
@@ -517,20 +523,13 @@ function onData(data, jsonsource, clientname){
 		data : sum_items,
 		columns : cols,
 	});
-/*
-	// Lastly, check any URL directives
 
-	var params = utils.get_hash_params()
-	if(params.execfilter){
+/*	if(params.execfilter){
 		execfilter(params.execfilter);
 	}
 	if(params.summaryfilter){
 		$('#summary').dataTable().api()
 			.search(params.summaryfilter).draw();
-	}
-	if(params.displayLog){
-		
-		displayLog(params.displayLog);
 	}
 	*/
 
