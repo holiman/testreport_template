@@ -78,6 +78,10 @@ def createSummaryFromJson( resultobj ):
 
         if "ethereum/consensus" not in data.keys():
             return
+
+        if "subresults" not in data["ethereum/consensus"].keys():
+            return
+            
         subresults = data["ethereum/consensus"]["subresults"]
         s_len = len(subresults)
 
