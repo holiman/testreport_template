@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 import json
 import sys
-from os import listdir
+
+import os
 from os.path import isfile, join
 
 import argparse
 
-parser = argparse.ArgumentParser(description='Create a file listing from test results')
-parser.add_argument('-f', action="store", dest="artefact",help='specific artefact-file to add (omit to regenerate all)')
-parser.add_argument('-l', action="store", dest="listingfile",required=True, help='Listing-file to regenerate')
-parser.add_argument('-a', action="store", dest="artefact_dir",required=True, help='Artefact-dir, containing files')
 
 def dumpjson(obj, fname):
     """ Dumps object to json"""
@@ -18,95 +15,126 @@ def dumpjson(obj, fname):
         print("Writing %s" % fname)
         json.dump(obj, outfile)
 
-def addAllToListing(artefact_dir, listingfile, filename = None):
-    """Regenerates listing-file and adds all files from artefact directory, 
-    unless 'filename' has been specified (in which case only that is added, and 
-    listing is not regenerated from scratch
+def dumpjsonl(alist, fname):
+    """ Dumps object to json"""
+    #Print file
+    with open(fname,"w+") as outfile:
+        print("Writing %s" % fname)
+        for elem in alist:
+            json.dump(elem, outfile)
+            outfile.write("\n")
+
+# Read a json-lines file, returns a list
+def readjsonl(fname):
+    """ Dumps object to json"""
+    #Print file
+    alist = []
+    try:
+        with open(fname,"r+") as f:
+            content = f.readlines()
+            for line in content: 
+                alist.append(json.loads(line))
+    except IOError:
+        pass
+
+    return alist
+
+def addAllToListing(artefact_dir, listingfile):
+    """
+    Regenerates listing-file and adds all files from artefact directory. 
+    This method does not reprocess things already listed, so delete the listing
+    if you want it regenerated
     """
     
-    listings = {"files" : []}
-    
-    if filename is not None:
-        #Don't regenerate, read existing 
-        with open(listingfile,"r") as infile:
-            listings = json.load(infile)
+    processed = {}    
+    listings = readjsonl(listingfile)
+    for oldfile in listings:
+        processed[oldfile["fileName"]] = True
+
 
     # This will regenerate the listingfile
-    files = [f for f in listdir(artefact_dir) if isfile(join(artefact_dir, f))]
-    
-    for f in files :
-        if filename is not None and filename != join(artefact_dir, f):
+    files = [f for f in os.listdir(artefact_dir) if (isfile(join(artefact_dir, f)) and f[-4:] == "json")]
+
+    for f in files:
+        path = join(artefact_dir, f)
+        # If we already have it listed, don't process it again
+        if path in processed:
+            print("already processed, skipping "+path)
             continue
 
-        file_summary = getSummary(join(artefact_dir, f))
+        file_summary = getSummary(path)
         if file_summary is not None:
-            listings["files"].append(file_summary)
+            listings.append(file_summary)
 
-    dumpjson(listings, listingfile)
+    listings.sort(key=lambda x: x["simLog"])
+    # Only list 200 items
+    dumpjsonl(listings[-200:], listingfile)
 
 def getSummary(resultsfile):
-    print("Opening %s" % resultsfile)
+    print("Processing %s" % resultsfile)
 
     with open(resultsfile,"r") as infile:
         sims = json.load(infile)
-        sim_summary = createSummaryFromJson(sims)
-
-        file_entry = { "filename" : resultsfile,
-                        "simulations" : sim_summary,
-                        "clients" : getClients(sims)}
-
-        print "Returning %s" % file_entry
-        return file_entry
+        summary = createSummaryFromJson(sims)
+        if summary is None:
+            print("summary failed on "+resultsfile+ ", skipping")
+            return
+        summary["size"] = os.path.getsize(resultsfile)
+        summary["fileName"] = resultsfile
+        return summary        
 
     print("Failed to open %s" % resultsfile)
     return None
 
-def getClients(resultobj):
-    clients = {}
-    if "clients" in resultobj.keys():
-        clients = resultobj['clients']
-    else:
-        sims = resultobj['simulations']
-        for client, data in sims.items():   
-            clients[client] = {"branch": "", "commit" : "", "repo" : ""}
-    return clients
+def createSummaryFromJson( obj ):
 
-def createSummaryFromJson( resultobj ):
+    summary ={}
 
-    sims = resultobj['simulations']
-    for client, data in sims.items():
+    summary["description"] = obj["description"]
+    summary["name"] = obj["name"]
+    summary["simLog"] = obj["simLog"]
+    summary["ntests"] = len(obj["testCases"].keys())
+    cases = obj["testCases"]
+    passes = 0
+    fails = 0
+    clients = set()
+    startTime = ""
+    for k,case in cases.items():
+        
+        k = case.keys()
+        if startTime == "":
+            startTime = case["start"]
 
-        if "ethereum/consensus" not in data.keys():
-            return
+        if case["summaryResult"]["pass"]:
+            passes = passes+1
+        else:
+            fails = fails+1
 
-        if "subresults" not in data["ethereum/consensus"].keys():
-            return
-            
-        subresults = data["ethereum/consensus"]["subresults"]
-        s_len = len(subresults)
+        clientInfos = case["clientInfo"]
+        for k, info in clientInfos.items():
+            clients.add(info["name"])
 
-        success =0
-        fail =0
-        for s_result in subresults:
-            if s_result['success']:
-                success = success+1
-            else:
-                fail = fail +1
+    summary["passes"] = passes
+    summary["fails"] = fails
+    summary["clients"] = list(clients)
+    summary["start"] = startTime
+    if startTime == "":
+        return None
 
-        data["ethereum/consensus"]["subresults"] = s_len
-        data["ethereum/consensus"]["n_successes"] = success
-        data["ethereum/consensus"]["n_fails"] = fail
-    
+    return summary
 
-    return sims
+parser = argparse.ArgumentParser(description='Create a file listing from test results')
+parser.add_argument('-l', action="store", dest="listingfile",required=True, help='Listing-file to regenerate')
+parser.add_argument('-a', action="store", dest="artefact_dir",required=True, help='Artefact-dir, containing files')
 
 
 if __name__ == '__main__':
     
     #For testing: 
-    #args = parser.parse_args(["-l","listing2.json","-a","test_artefacts"])
-    #args = parser.parse_args(["-a","test_artefacts","-f","test_artefacts/20170308_151608-go-ethereum:master.json","-l","listing.json"])
-    
-    args = parser.parse_args()
-    addAllToListing(args.artefact_dir,args.listingfile,args.artefact)
+    testing = True
+    if testing:
+        args = parser.parse_args(["-l","listing.jsonl","-a","./results"])
+    else:
+        args = parser.parse_args()
+    addAllToListing(args.artefact_dir,args.listingfile)
     sys.exit(0)
