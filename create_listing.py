@@ -133,7 +133,7 @@ parser.add_argument('-a', action="store", dest="artefact_dir",required=True, hel
 if __name__ == '__main__':
     
     #For testing: 
-    testing = True
+    testing = False
     if testing:
         args = parser.parse_args(["-l","listing.jsonl","-a","./results"])
     else:
