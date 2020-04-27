@@ -90,6 +90,8 @@
 </body>
 <script>
 
+const resultsRoot="/results/"
+
 utils = {
 
 	/*
@@ -287,7 +289,7 @@ function onFileListing(data, error){
 	// the data is jsonlines
 	/*
 		{
-			"fileName": "./results/1587325327-fa7ec3c7d09a8cfb754097f79df82118.json",
+			"fileName": "./1587325327-fa7ec3c7d09a8cfb754097f79df82118.json",
 			"name": "Sync test suite",
 			"start": "",
 			"simLog": "1587325280-00befe48086b1ef74fbb19b9b7d43e4d-simulator.log",
@@ -376,9 +378,6 @@ $(document).ready(function() {
 	if (suite){
 		// TODO: fix it so we show Loading spinner, and status 'Loaded' (unselectable) once it's loaded
 		loadTestSuite(suite, function(ok){
-			//if(ok){
-			//	$('#v-pills-results-tab').tab('show')
-			//}
 		})
 	}
 
@@ -391,7 +390,7 @@ function loadTestSuite(suitefile, doneFn){
 	progress("Loading " +filename);
 
 
-	var jqxhr = $.getJSON( filename, function(data) {
+	var jqxhr = $.getJSON( resultsRoot+"/"+ filename, function(data) {
 			doneFn(true);
 			// store in url query
 			nav.store("suite",suitefile);
@@ -472,7 +471,6 @@ function onSuiteData(data, jsonsource){
 		var clientLogs = []
 		for( let kk in tc.clientInfo){
 			let instance = tc.clientInfo[kk]
-			console.log(instance)
 			clientLogs.push({"logFile":"results/"+instance.logFile,"name": instance.name} )
 		}
 
@@ -508,7 +506,6 @@ function onSuiteData(data, jsonsource){
 					return "&#x2715; <b>Fail</b>";
 				} },
 			{ title: "Logs", render: function(clientLogs){
-				console.log(clientLogs)
 				let logs = []
 				for( let k in clientLogs){
 					let ci = clientLogs[k]

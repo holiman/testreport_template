@@ -56,13 +56,13 @@ def addAllToListing(artefact_dir, listingfile):
     files = [f for f in os.listdir(artefact_dir) if (isfile(join(artefact_dir, f)) and f[-4:] == "json")]
 
     for f in files:
-        path = join(artefact_dir, f)
         # If we already have it listed, don't process it again
-        if path in processed:
-            print("already processed, skipping "+path)
+        if f in processed:
+            print("already processed, skipping "+f)
             continue
 
-        file_summary = getSummary(path)
+
+        file_summary = getSummary(artefact_dir, f)
         if file_summary is not None:
             listings.append(file_summary)
 
@@ -70,20 +70,22 @@ def addAllToListing(artefact_dir, listingfile):
     # Only list 200 items
     dumpjsonl(listings[-200:], listingfile)
 
-def getSummary(resultsfile):
+def getSummary(path, resultsfile):
     print("Processing %s" % resultsfile)
+    
+    path = join(path, resultsfile)
 
-    with open(resultsfile,"r") as infile:
+    with open(path,"r") as infile:
         sims = json.load(infile)
         summary = createSummaryFromJson(sims)
         if summary is None:
             print("summary failed on "+resultsfile+ ", skipping")
             return
-        summary["size"] = os.path.getsize(resultsfile)
+        summary["size"] = os.path.getsize(path)
         summary["fileName"] = resultsfile
         return summary        
 
-    print("Failed to open %s" % resultsfile)
+    print("Failed to open %s %s" % (path, resultsfile))
     return None
 
 def createSummaryFromJson( obj ):
