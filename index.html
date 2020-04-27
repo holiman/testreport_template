@@ -22,6 +22,13 @@
 .replaceme{
 	max-width: 1000px;
 }
+td.details-control {
+    background: url('/details_open.png') no-repeat center center;
+    cursor: pointer;
+}
+tr.shown td.details-control {
+    background: url('/details_close.png') no-repeat center center;
+}
 </style>
 
 <body>
@@ -48,7 +55,8 @@
 					</div>
 					<div class="tab-pane fade" id="v-pills-results" role="tabpanel" aria-labelledby="v-pills-results-tab">
 						
-						<h2>Execution results</h2>
+						<h2>Execution results: <span id="testsuite_name">Nothing loaded yet</span></p></h2>
+						<p><span id="testsuite_desc">Nothing loaded yet</span></p>
 						<table id="execresults" class="table table-striped table-bordered" width="100%"></table>
 
 					</div>
@@ -332,7 +340,7 @@ function onFileListing(data, error){
 				render: function(data){ 
 					let size=utils.units(data.size)
 					btn = '<button type="button" class="btn btn-sm btn-primary"><span class="loader" role="status" aria-hidden="true"></span><span class="txt">Load ('+size+')</span></button>'
-					raw = logview(data.fileName, "[json]")
+					raw = logview("results/"+data.fileName, "[json]")
 					return btn +"&nbsp;"+ raw
 				},
 			},
@@ -430,6 +438,17 @@ function logFolder(jsonsource, client)
 {
 	return jsonsource.split(".")[0];
 }
+
+/* Formatting function for row details */
+function format ( d ) {
+    // `d` is the original data object for the row
+	let txt = ""
+  txt += "<b>Name</b>"+utils.tag('p',d.name)
+	txt += "<b>Description</b>"+converter.makeHtml(d.description)
+	txt += "<br/><b>Details</b>"+converter.makeHtml(d.summaryResult.details)
+	return txt
+}
+
 function onSuiteData(data, jsonsource){
 
 	/** data structure of suite data:
@@ -461,183 +480,83 @@ function onSuiteData(data, jsonsource){
 			}
 		},
 	**/
+	// Set title info
+	$("#testsuite_name").text(data.name)
+	$("#testsuite_desc").text(data.description)
 
-	if(execresults != null ){ execresults.clear().destroy();} //datatables can't be reinitalized, we need to destroy them if they exist
-
+	// Convert to list 
 	let cases = []
 	for(var k in data.testCases){
-		let tc = data.testCases[k]
-
-		var clientLogs = []
-		for( let kk in tc.clientInfo){
-			let instance = tc.clientInfo[kk]
-			clientLogs.push({"logFile":"results/"+instance.logFile,"name": instance.name} )
-		}
-
-		cases.push(
-				[
-					{"name": tc.name, "desc": tc.description || "n/a", "details": tc.summaryResult.details || "n/a"}, 
-					tc.summaryResult.pass,
-					clientLogs,
-				])
+		cases.push(data.testCases[k])
 	}
 	progress("got "+cases.length+" testcases")
-	//x = cases
-	//y = data
-	execresults = $('#execresults').DataTable( {
+
+	//datatables can't be reinitalized, we need to destroy them if they exist
+	if(execresults != null ){ 
+			execresults.clear().destroy();
+			$("#execresults").html("")
+	} 
+
+	// Init the datatable
+	var thetable = $('#execresults').DataTable( {
 		data: cases,
 		pageLength: 100,
 		columns: [
-			// { title: "Name"},
-			{ title: "Description", render: function(obj){
-
-				let txt = ""
-				txt += "<b>Name</b>"+utils.tag('p',obj.name)
-				txt += "<b>Description</b>"+converter.makeHtml(obj.desc)
-				txt += "<br/><b>Details</b>"+converter.makeHtml(obj.details)
-
-				// txt += "<b>Description</b>"+utils.tag('p',obj.desc)
-				// txt += "<br/><b>Details</b>"+utils.tag('pre',obj.details)
-				
-				return '<div class="replaceme">'+txt+'</div>'
-			} },
-			{ title: "Status", render: function(status){
-					if (status){ return "&#x2713"} ;
+			// First column is an 'expand'-button
+			 {
+				"className":      'details-control',
+				"orderable":      false,
+				"data":           null,
+				"defaultContent": ''
+       },
+       // Second column: Name
+			{ 
+				title: "Name", 
+				data: "name" },
+			//  Status: pass or not
+			{ 
+				title: "Status", 
+				data: "summaryResult", 
+				render: function(summaryResult){
+					if (summaryResult.pass){ return "&#x2713"} ;
 					return "&#x2715; <b>Fail</b>";
-				} },
-			{ title: "Logs", render: function(clientLogs){
-				let logs = []
-				for( let k in clientLogs){
-					let ci = clientLogs[k]
-					if (ci.logFile){
-						logs.push(logview(ci.logFile, ci.name))
-					}else if (ci.name){
-						logs.push(ci.name+ " (no logs)")
-					}
-				}
-				return logs.join(",")
+				} 
+			},
+			// The logs for clients related to the test
+			{ 
+				title: "Logs", 
+				data: "clientInfo", 
+				render: function(clientInfo){
 
-			}},
+					let logs = []
+					for( let instanceID in clientInfo){
+						let instanceInfo = clientInfo[instanceID]
+						logs.push(logview("results/"+instanceInfo.logFile, instanceInfo.name))
+					}
+					return logs.join(",")
+				}
+			},
 		],
 	});
 
-
+// This sets up the expanded info on click
+// https://www.datatables.net/examples/api/row_details.html 
+$('#execresults tbody').on('click', 'td.details-control', function () {
+        var tr = $(this).closest('tr');
+        var row = thetable.row( tr );
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            row.child( format(row.data()) ).show();
+            tr.addClass('shown');
+        }
+    } );
+	execresults = thetable
 	return
-
-	//For the failure summary, we need to also delete the html, 
-	// since clear/destroy leaves th/td fields. This causes datatables
-	// to fail, if we try to add more columns
-	//if(failuresummary != null ){ failuresummary .clear().destroy();}
-	//$("#summary").html("");
-	
-
-	// var overallresults = {
-	// 	results : {},
-	// 	clients : {"Testcase":0},
-	// 	cols : [{ "title": "Testcase"} ]
-	// }
-
-
-
-
-	// function addOverallResult(testcase, client, status, jsonsource){
-	// 	client = jsonsource+" - "+client
-	// 	if (overallresults.results[testcase] == null){
-	// 		overallresults.results[testcase] = [testcase]
-	// 	}
-	// 	_tcase = overallresults.results[testcase]
-	// 	if (overallresults[client] == null)
-	// 	{
-	// 		overallresults[client] = overallresults.cols.length
-	// 		overallresults.cols.push({"title" : client});
-	// 	}
-	// 	_clientnum = overallresults[client]
-	// 	_tcase[_clientnum] = status
-	// }
-
-	var items = []
-	data = data["testCases"]
-
-	for (var client in data){
-		if (client != clientname) continue;
-		if (!data[client]["ethereum/consensus"]) continue;
-		
-
-		if (!alldata[jsonsource]){ 
-			alldata[jsonsource] = {} ;
-		}
-		testreport = data[client]["ethereum/consensus"]
-
-		alldata[jsonsource][client] = testreport.subresults
-	}
-	for ( var jsonsource in alldata)
-	{
-		for (var client in alldata[jsonsource]){
-			var subresults = alldata[jsonsource][client]
-			var x = subresults.map(function(subresult){
-
-				var fname = subresult.name;
-				if(fname.startsWith("./tests/"))
-				{
-					fname = fname.substring(8);
-				}
-				addOverallResult(fname,client,subresult.success, jsonsource);
-				return { 
-					"filename" 	: fname,
-					"status" 	: subresult.success,
-					"client"	: client,
-					"instance"	: subresult.details.instanceid,
-					"message" 	: subresult.details.errors,
-					"source"    : jsonsource,
-					"ms"        : subresult.details.ms
-				}			
-			});
-			items = items.concat(x)
-
-		}
-	}
-
-
-	var TEST_REPO = "https://github.com/ethereum/tests/blob/develop/";
-
-
-
-	//Process overallresults
-	
-
-	var sum_items = [];
-	var cols = overallresults.cols;
-	//var _x  = function(data, type, row){ return data ? "&#x2713;": "&#x2715; <b>Fail</b>"; }
-	//for (c in cols){
-	//  cols[c].render = _x
-	//}
-	cols[0].render =  linkToTestRepoAndFilter;
-	var numclients = overallresults.cols.length;
-	Object.keys(overallresults.results).map(function(key, index) {
-		 //Only bother with the ones containng failures
-		 var results = overallresults.results[key]
-		 var fail = false;
-		 for (var i = 1 ; i < numclients ; i++){
-			
-			//If a test result does not exist for this client
-			if (results[i] == undefined){
-				results[i] = "?";
-				fail = true;
-			}else if (results[i] == false){
-				results[i] = "&#x2715; <b>Fail</b>";
-				fail = true;
-			}else{
-				results[i] = "&#x2713";
-			}
-		 }
-		 if (fail){
-		sum_items.push(results);
-		 }
-	});
-	failuresummary = $("#summary").DataTable({
-		data : sum_items,
-		columns : cols,
-	});
 
 /*	if(params.execfilter){
 		execfilter(params.execfilter);
@@ -653,5 +572,5 @@ function onSuiteData(data, jsonsource){
 </html>
 
 <!-- 
-Lovingly handcrafted by Martin Holst Swende @mhswende in 2017 
+Lovingly handcrafted by Martin Holst Swende @mhswende in 2017, updated in 2020
 -->
