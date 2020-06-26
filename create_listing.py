@@ -58,7 +58,7 @@ def addAllToListing(artefact_dir, listingfile):
     for f in files:
         # If we already have it listed, don't process it again
         if f in processed:
-            print("already processed, skipping "+f)
+            #print("already processed, skipping "+f)
             continue
 
 
@@ -71,7 +71,7 @@ def addAllToListing(artefact_dir, listingfile):
     dumpjsonl(listings[-200:], listingfile)
 
 def getSummary(path, resultsfile):
-    print("Processing %s" % resultsfile)
+    #print("Processing %s" % resultsfile)
     
     path = join(path, resultsfile)
 
