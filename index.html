@@ -320,8 +320,11 @@ function onFileListing(data, error){
 		})
 	filetable = $("#filetable").DataTable({
 		data : suites,
+		pageLength: 50,
 		columns: [
-			{title: "Start time", data:"start",
+			{title: "Start time", 
+				data:"start",
+				type:"date",
 				render: function(data){ return new Date(data).toLocaleString();}
 			},
 			{ title:"Test suite", data:"name"},
