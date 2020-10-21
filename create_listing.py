@@ -39,6 +39,10 @@ def readjsonl(fname):
 
     return alist
 
+def isErrorReport( f ):
+    return f == "errorReport.json" or f == "containerErrorReport.json"
+
+
 def addAllToListing(artefact_dir, listingfile):
     """
     Regenerates listing-file and adds all files from artefact directory. 
@@ -53,7 +57,7 @@ def addAllToListing(artefact_dir, listingfile):
 
 
     # This will regenerate the listingfile
-    files = [f for f in os.listdir(artefact_dir) if (isfile(join(artefact_dir, f)) and f[-4:] == "json")]
+    files = [f for f in os.listdir(artefact_dir) if (isfile(join(artefact_dir, f)) and f[-4:] == "json") and not isErrorReport(f)]
 
     for f in files:
         # If we already have it listed, don't process it again
